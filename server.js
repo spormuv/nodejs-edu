@@ -1,5 +1,6 @@
 // import & variables
 const express = require('express');
+const morgan = require('morgan');
 const path = require('path');
 const PORT = 3000;
 
@@ -11,10 +12,20 @@ app.set('view engine', 'ejs');
 const createPath = (page) =>
   path.resolve(__dirname, 'ejs-views', `${page}.ejs`);
 
-// server functioning
+// express server listening
 app.listen(PORT, (err) => {
   err ? console.error(err) : console.log(`Listening port ${PORT}`);
 });
+
+// express middleware
+
+app.use(
+  morgan(':method :url :status :res[content-length] - :response-time ms')
+);
+
+app.use(express.static('styles'));
+
+// express server response
 
 app.get('/', (req, res) => {
   const title = 'Home';
