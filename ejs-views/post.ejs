@@ -7,7 +7,7 @@
       <article>
         <div class="info">
           <span>
-            <%= post.date || 'No date' %>
+            <%= post.createdAt.toLocaleDateString() || 'No date' %>
           </span>
           <span>
             <%= post.author %>
