@@ -1,18 +1,27 @@
 // import & variables
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
-const path = require('path');
+const mongoose = require('mongoose');
+mongoose.set('strictQuery', false);
+const Post = require('./models/post');
+
 const PORT = 3000;
-
-// express
-const app = express();
-app.set('view engine', 'ejs');
-
+const db =
+  'mongodb+srv://user:123@cluster0.agr0bqa.mongodb.net/?retryWrites=true&w=majority';
 // functions
 const createPath = (page) =>
   path.resolve(__dirname, 'ejs-views', `${page}.ejs`);
 
-// express server listening
+// connect db
+mongoose
+  .connect(db)
+  .then((res) => console.log('Connected to db'))
+  .catch((err) => console.error(err));
+
+// express
+const app = express();
+app.set('view engine', 'ejs');
 app.listen(PORT, (err) => {
   err ? console.error(err) : console.log(`Listening port ${PORT}`);
 });
@@ -72,14 +81,14 @@ app.get('/posts', (req, res) => {
 
 app.post('/add-post', (req, res) => {
   const { title, author, text } = req.body;
-  const post = {
-    id: new Date(),
-    date: new Date().toLocaleDateString(),
-    title,
-    author,
-    text,
-  };
-  res.render(createPath('post'), { post, title });
+  const post = new Post({ title, author, text });
+  post
+    .save()
+    .then((result) => res.send(result))
+    .catch((err) => {
+      console.error(err);
+      res.render(createPath('error'), { title: 'Error' });
+    });
 });
 
 app.get('/add-post', (req, res) => {
