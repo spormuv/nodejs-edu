@@ -31,7 +31,7 @@ const getEditPost = (req, res) => {
 const editPost = (req, res) => {
   const { title, author, text } = req.body;
   const { id } = req.params;
-  Post.findByIdAndUpdate(req.params.id, { title, author, text })
+  Post.findByIdAndUpdate(id, { title, author, text })
     .then((result) => res.redirect(`/posts/${id}`))
     .catch((error) => handleError(res, error));
 };
