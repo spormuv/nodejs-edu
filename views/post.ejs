@@ -34,7 +34,7 @@
             fetch(`/posts/${id}`, {
               method: 'DELETE'
             }).then(() => {
-              window.location.href('/posts');
+              window.location.href = '/posts';
             })
           }
         })

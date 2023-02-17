@@ -1,19 +1,16 @@
 // import & variables
-const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', false);
 const methodOverride = require('method-override');
-const Post = require('./models/post');
-const Contact = require('./models/contact');
+const postRoutes = require('./routes/post-routes');
+const contactRoutes = require('./routes/contact-routes');
+const createPath = require('./helpers/create-path');
 
 const PORT = 3000;
 const db =
   'mongodb+srv://user:123@cluster0.agr0bqa.mongodb.net/?retryWrites=true&w=majority';
-// functions
-const createPath = (page) =>
-  path.resolve(__dirname, 'ejs-views', `${page}.ejs`);
 
 // connect db
 mongoose
@@ -47,84 +44,8 @@ app.get('/', (req, res) => {
   res.render(createPath('index'), { title });
 });
 
-app.get('/contacts', (req, res) => {
-  const title = 'Contacts';
-  Contact.find()
-    .then((contacts) => res.render(createPath('contacts'), { contacts, title }))
-    .catch((err) => {
-      console.error(err);
-      res.render(createPath('error'), { title: 'Error' });
-    });
-});
-
-app.get('/posts/:id', (req, res) => {
-  const title = 'Post';
-  Post.findById(req.params.id)
-    .then((post) => res.render(createPath('post'), { post, title }))
-    .catch((err) => {
-      console.error(err);
-      res.render(createPath('error'), { title: 'Error' });
-    });
-});
-
-app.delete('/posts/:id', (req, res) => {
-  const title = 'Post';
-  Post.findByIdAndDelete(req.params.id)
-    .then((result) => res.sendStatus(200))
-    .catch((err) => {
-      console.error(err);
-      res.render(createPath('error'), { title: 'Error' });
-    });
-});
-
-app.get('/edit/:id', (req, res) => {
-  const title = 'Edit Post';
-  Post.findById(req.params.id)
-    .then((post) => res.render(createPath('edit-post'), { post, title }))
-    .catch((err) => {
-      console.error(err);
-      res.render(createPath('error'), { title: 'Error' });
-    });
-});
-
-app.put('/edit/:id', (req, res) => {
-  const { title, author, text } = req.body;
-  const { id } = req.params;
-  Post.findByIdAndUpdate(id, { title, author, text })
-    .then((result) => res.redirect(`/posts/${id}`))
-    .catch((err) => {
-      console.error(err);
-      res.render(createPath('error'), { title: 'Error' });
-    });
-});
-
-app.get('/posts', (req, res) => {
-  const title = 'Posts';
-  Post.find()
-    .sort({ createdAt: -1 })
-    .then((posts) => res.render(createPath('posts'), { posts, title }))
-    .catch((err) => {
-      console.error(err);
-      res.render(createPath('error'), { title: 'Error' });
-    });
-});
-
-app.post('/add-post', (req, res) => {
-  const { title, author, text } = req.body;
-  const post = new Post({ title, author, text });
-  post
-    .save()
-    .then((result) => res.redirect('/posts'))
-    .catch((err) => {
-      console.error(err);
-      res.render(createPath('error'), { title: 'Error' });
-    });
-});
-
-app.get('/add-post', (req, res) => {
-  const title = 'Add post';
-  res.render(createPath('add-post'), { title });
-});
+app.use(postRoutes);
+app.use(contactRoutes);
 
 app.use((req, res) => {
   const title = 'Error Page';
